@@ -22,7 +22,7 @@ export interface userData {
 })
 export class UserService {
 
-  private auth = inject(Auth);
+  private auth = typeof window !== 'undefined' ? inject(Auth) : null;
 
   user$ = signal<{
     loading: boolean,
@@ -38,6 +38,13 @@ export class UserService {
 
       // toggle loading
       this.user$().loading = true;
+
+      // server environment
+      if (!this.auth) {
+        this.user$().loading = false;
+        this.user$().data = null;
+        return;
+      }
 
       return onIdTokenChanged(this.auth, (_user: User | null) => {
 
@@ -66,11 +73,15 @@ export class UserService {
   }
 
   login() {
-    signInWithPopup(this.auth, new GoogleAuthProvider());
+    if (this.auth) {
+      signInWithPopup(this.auth, new GoogleAuthProvider());
+    }    
   }
 
   logout() {
-    signOut(this.auth);
+    if (this.auth) {
+      signOut(this.auth);
+    }    
   }
 
 }
