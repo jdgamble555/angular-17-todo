@@ -1,11 +1,11 @@
 import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
 import {
   Auth,
-  GoogleAuthProvider,
-  User,
-  onIdTokenChanged,
-  signInWithPopup,
-  signOut
+  //GoogleAuthProvider,
+  //User,
+  //onIdTokenChanged,
+  //signInWithPopup,
+  //signOut
 } from '@angular/fire/auth';
 
 
@@ -46,7 +46,7 @@ export class UserService {
         return;
       }
 
-      return onIdTokenChanged(this.auth, (_user: User | null) => {
+      /*return onIdTokenChanged(this.auth, (_user: User | null) => {
 
         this.user$().loading = false;
 
@@ -66,25 +66,25 @@ export class UserService {
 
         // set store
         this.user$().data = data;
-      });
+      });*/
 
     });
 
   }
 
   login() {
-    if (this.auth) {
+    /*if (this.auth) {
       const signIn = typeof window !== 'undefined' ? signInWithPopup : null;
       if (signIn) {
         signIn(this.auth, new GoogleAuthProvider());
       }      
-    }    
+    } */   
   }
 
   logout() {
-    if (this.auth) {
+    /*if (this.auth) {
       signOut(this.auth);
-    }    
+    }*/   
   }
 
 }
