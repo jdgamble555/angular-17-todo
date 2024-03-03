@@ -21,8 +21,18 @@
     "useDefineForClassFields": false,
     "lib": [
       "ES2022",
-      "dom"
-    ]
+      "dom",
+      "DOM.Iterable"
+    ],
+    "baseUrl": "src",
+    "paths": {
+      "@services": [
+        "./app/services"
+      ],
+      "@services/*": [
+        "./app/services/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
