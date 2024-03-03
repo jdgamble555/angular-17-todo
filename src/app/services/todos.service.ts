@@ -1,4 +1,4 @@
-import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, effect, inject, isDevMode, signal } from '@angular/core';
 import {
   CollectionReference,
   DocumentData,
@@ -16,6 +16,7 @@ import {
   where
 } from 'firebase/firestore';
 import { UserService } from './user.service';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface TodoItem {
   id: string;
@@ -46,7 +47,9 @@ export interface TodoItem {
 })
 export class TodosService {
 
-  db = getFirestore();
+  platformId = inject(PLATFORM_ID);
+  
+  db = isPlatformBrowser(this.platformId) ? getFirestore() : null;
   user = inject(UserService).user$;
 
   todos = signal<{
