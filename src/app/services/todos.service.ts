@@ -14,7 +14,7 @@ import {
   serverTimestamp,
   updateDoc,
   where
-} from 'firebase/firestore';
+} from '@angular/fire/firestore';
 import { UserService } from './user.service';
 
 export interface TodoItem {

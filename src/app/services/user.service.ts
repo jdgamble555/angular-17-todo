@@ -1,6 +1,6 @@
 import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
 import {
-  Auth,
+  //Auth,
   //GoogleAuthProvider,
   //User,
   //onIdTokenChanged,
@@ -22,7 +22,8 @@ export interface userData {
 })
 export class UserService {
 
-  private auth = typeof window !== 'undefined' ? inject(Auth) : null;
+  //private auth = typeof window !== 'undefined' ? inject(Auth) : null;
+  private auth = null;
 
   user$ = signal<{
     loading: boolean,
