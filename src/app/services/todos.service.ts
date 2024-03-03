@@ -25,7 +25,7 @@ export interface TodoItem {
   uid: string;
 };
 
-export const snapToData = (q: QuerySnapshot<DocumentData, DocumentData>) => {
+/*export const snapToData = (q: QuerySnapshot<DocumentData, DocumentData>) => {
 
   // creates todo data from snapshot
   if (q.empty) {
@@ -39,14 +39,14 @@ export const snapToData = (q: QuerySnapshot<DocumentData, DocumentData>) => {
       id: doc.id
     }
   }) as TodoItem[];
-}
+}*/
 
 @Injectable({
   providedIn: 'root'
 })
 export class TodosService {
 
-  db = inject(Firestore);
+  //db = inject(Firestore);
   user = inject(UserService).user$;
 
   todos = signal<{
@@ -69,7 +69,7 @@ export class TodosService {
         return;
       }
 
-      return onSnapshot(
+      /*return onSnapshot(
 
         // query realtime todo list
         query(
@@ -88,7 +88,7 @@ export class TodosService {
            * Note: Will get triggered 2x on add 
            * 1 - for optimistic update
            * 2 - update real date from server date
-           */
+           
 
           // print data in dev mode
           if (isDevMode()) {
@@ -97,7 +97,7 @@ export class TodosService {
 
           // add to store
           this.todos().data = data;
-        });
+        });*/
 
     });
   }
@@ -122,20 +122,20 @@ export class TodosService {
     // reset form
     target.reset();
   
-    addDoc(collection(this.db, 'todos'), {
+    /*addDoc(collection(this.db, 'todos'), {
         uid,
         text: task,
         complete: false,
         created: serverTimestamp()
-    });
+    });*/
   }
   
   updateTodo = (id: string, complete: boolean) => {
-    updateDoc(doc(this.db, 'todos', id), { complete });
+    //updateDoc(doc(this.db, 'todos', id), { complete });
   }
   
   deleteTodo = (id: string) => {
-    deleteDoc(doc(this.db, 'todos', id));
+    //deleteDoc(doc(this.db, 'todos', id));
   }
 
 }
