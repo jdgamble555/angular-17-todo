@@ -2,7 +2,7 @@ import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
 import {
   CollectionReference,
   DocumentData,
-  Firestore,
+  getFirestore,
   QuerySnapshot,
   addDoc,
   collection,
@@ -46,7 +46,7 @@ export interface TodoItem {
 })
 export class TodosService {
 
-  db = inject(Firestore);
+  db = getFirestore();
   user = inject(UserService).user$;
 
   todos = signal<{
