@@ -74,7 +74,10 @@ export class UserService {
 
   login() {
     if (this.auth) {
-      signInWithPopup(this.auth, new GoogleAuthProvider());
+      const signIn = typeof window !== 'undefined' ? signInWithPopup : null;
+      if (signIn) {
+        signIn(this.auth, new GoogleAuthProvider());
+      }      
     }    
   }
 
