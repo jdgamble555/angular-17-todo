@@ -46,7 +46,7 @@ export interface TodoItem {
 })
 export class TodosService {
 
-  //db = inject(Firestore);
+  db = inject(Firestore);
   user = inject(UserService).user$;
 
   todos = signal<{
