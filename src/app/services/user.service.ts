@@ -1,12 +1,12 @@
 import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
-import {
+/*import {
   //Auth,
   //GoogleAuthProvider,
   //User,
   //onIdTokenChanged,
   //signInWithPopup,
   //signOut
-} from '@angular/fire/auth';
+} from '@angular/fire/auth';*/
 
 
 export interface userData {
