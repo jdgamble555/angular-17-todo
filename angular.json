@@ -14,7 +14,7 @@
           "builder": "@ngx-env/builder:application",
           "options": {
             "outputPath": "dist/angular-17-todo",
-            "index": "src/index.html",
+            "index": "src/index1.html",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
@@ -29,7 +29,7 @@
             ],
             "scripts": [],
             "server": "src/main.server.ts",
-            "prerender": true,
+            "prerender": false,
             "ssr": {
               "entry": "server.ts"
             }

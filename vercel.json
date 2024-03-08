@@ -1,0 +1,16 @@
+{
+    "version": 2,
+    "public": true,
+    "name": "angular-17-todo",
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/api"
+      }
+    ],
+    "functions": {
+      "api/index.js": {
+        "includeFiles": "dist/angular-17-todo/**"
+      }
+    }
+  }
