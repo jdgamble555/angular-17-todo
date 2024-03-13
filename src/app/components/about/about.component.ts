@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AboutDoc } from './about.service';
+import type { AboutDoc } from './about.resolver';
 
 
 @Component({
