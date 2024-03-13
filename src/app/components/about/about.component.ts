@@ -1,4 +1,3 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AboutDoc } from './about.service';
@@ -7,10 +6,7 @@ import { AboutDoc } from './about.service';
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [
-    AsyncPipe,
-    RouterModule
-  ],
+  imports: [RouterModule],
   templateUrl: './about.component.html',
   styles: ``
 })
