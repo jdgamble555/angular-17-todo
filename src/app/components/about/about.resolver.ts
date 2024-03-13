@@ -1,29 +1,16 @@
-import { inject, isDevMode } from '@angular/core';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
+import { AboutDoc, AboutService } from './about.service';
 
-export type AboutDoc = {
-  name: string;
-  description: string;
-};
 
-export const aboutResolver: ResolveFn<AboutDoc> = async () => {
-  
-  const db = inject(Firestore);
+export const aboutResolver: ResolveFn<AboutDoc> = () => {
 
-  const aboutSnap = await getDoc(
-    doc(db, '/about/ZlNJrKd6LcATycPRmBPA')
-  );
+  const about = inject(AboutService);
 
-  if (!aboutSnap.exists()) {
-    throw 'Document does not exist!';
+  // Don't refetch data
+  if (about.data) {
+    return about.data;
   }
 
-  const data = aboutSnap.data() as AboutDoc;
-
-  if (isDevMode()) {
-    console.log(data);
-  }
-
-  return data;
+  return about.getAbout();
 };

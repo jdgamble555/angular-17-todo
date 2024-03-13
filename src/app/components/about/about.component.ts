@@ -1,9 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
-import { AboutDoc } from './about.resolver';
+import { AboutDoc } from './about.service';
+
 
 @Component({
   selector: 'app-about',
@@ -19,10 +18,14 @@ export class AboutComponent {
 
   private route = inject(ActivatedRoute);
 
+  about = this.route.snapshot.data['data'] as AboutDoc;
+
+  /*
   about = toSignal<AboutDoc>(
     this.route.data.pipe(
       map((v) => v['data'])
     )
   );
+  */
 
 }
