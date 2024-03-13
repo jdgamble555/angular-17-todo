@@ -103,13 +103,15 @@ export class TodosService {
     });
   }
 
-  addTodo = (e: SubmitEvent, uid?: string) => {
+  addTodo = (e: SubmitEvent) => {
 
     e.preventDefault();
 
-    if (!uid) {
-      throw 'No UID!';
+    if (!this.user().data) {
+      throw 'No user!';
     }
+
+    const uid = this.user().data?.uid;
 
     // get and reset form
     const target = e.target as HTMLFormElement;
