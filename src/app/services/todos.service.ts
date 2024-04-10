@@ -1,6 +1,11 @@
-import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
 import {
-  CollectionReference,
+  Injectable,
+  effect,
+  inject,
+  isDevMode,
+  signal
+} from '@angular/core';
+import {
   DocumentData,
   getFirestore,
   QuerySnapshot,
@@ -13,7 +18,8 @@ import {
   query,
   serverTimestamp,
   updateDoc,
-  where
+  where,
+  Timestamp
 } from '@angular/fire/firestore';
 
 import { UserService } from './user.service';
@@ -26,17 +32,22 @@ export interface TodoItem {
   uid: string;
 };
 
-export const snapToData = (q: QuerySnapshot<DocumentData, DocumentData>) => {
+export const snapToData = (
+  q: QuerySnapshot<DocumentData, DocumentData>
+) => {
 
   // creates todo data from snapshot
   if (q.empty) {
     return [];
   }
   return q.docs.map((doc) => {
-    const data = doc.data();
+    const data = doc.data({
+      serverTimestamps: 'estimate'
+    });
+    const created = data['created'] as Timestamp;
     return {
       ...data,
-      created: new Date(data['created']?.toMillis()),
+      created: created.toDate(),
       id: doc.id
     }
   }) as TodoItem[];
@@ -46,7 +57,7 @@ export const snapToData = (q: QuerySnapshot<DocumentData, DocumentData>) => {
   providedIn: 'root'
 })
 export class TodosService {
-  
+
   user = inject(UserService).user$;
   db = getFirestore();
 
@@ -74,7 +85,7 @@ export class TodosService {
 
         // query realtime todo list
         query(
-          collection(this.db, 'todos') as CollectionReference<TodoItem[]>,
+          collection(this.db, 'todos'),
           where('uid', '==', userData.uid),
           orderBy('created')
         ), (q) => {
@@ -107,36 +118,36 @@ export class TodosService {
 
     e.preventDefault();
 
-    if (!this.user().data) {
-      throw 'No user!';
-    }
+    const userData = this.user().data;
 
-    const uid = this.user().data?.uid;
+    if (!userData) {
+      throw 'No User!';
+    }
 
     // get and reset form
     const target = e.target as HTMLFormElement;
     const form = new FormData(target);
     const { task } = Object.fromEntries(form);
-  
+
     if (typeof task !== 'string') {
-        return;
+      return;
     }
-  
+
     // reset form
     target.reset();
-  
+
     addDoc(collection(this.db, 'todos'), {
-        uid,
-        text: task,
-        complete: false,
-        created: serverTimestamp()
+      uid: userData.uid,
+      text: task,
+      complete: false,
+      created: serverTimestamp()
     });
   }
-  
+
   updateTodo = (id: string, complete: boolean) => {
     updateDoc(doc(this.db, 'todos', id), { complete });
   }
-  
+
   deleteTodo = (id: string) => {
     deleteDoc(doc(this.db, 'todos', id));
   }

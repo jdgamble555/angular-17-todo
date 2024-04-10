@@ -1,4 +1,11 @@
-import { Injectable, effect, inject, isDevMode, signal } from '@angular/core';
+import {
+  Injectable,
+  OnDestroy,
+  OnInit,
+  inject,
+  isDevMode,
+  signal
+} from '@angular/core';
 import {
   Auth,
   GoogleAuthProvider,
@@ -20,9 +27,11 @@ export interface userData {
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class UserService implements OnDestroy {
 
   private auth = inject(Auth);
+
+  private unsubscribe = () => { };
 
   user$ = signal<{
     loading: boolean,
@@ -34,19 +43,19 @@ export class UserService {
 
   constructor() {
 
-    effect(() => {
+    // toggle loading
+    this.user$().loading = true;
 
-      // toggle loading
-      this.user$().loading = true;
+    // server environment
+    if (!this.auth) {
+      this.user$().loading = false;
+      this.user$().data = null;
+      return;
+    }
 
-      // server environment
-      if (!this.auth) {
-        this.user$().loading = false;
-        this.user$().data = null;
-        return;
-      }
-
-      return onIdTokenChanged(this.auth, (_user: User | null) => {
+    this.unsubscribe = onIdTokenChanged(
+      this.auth,
+      (_user: User | null) => {
 
         this.user$().loading = false;
 
@@ -66,10 +75,12 @@ export class UserService {
 
         // set store
         this.user$().data = data;
+
       });
+  }
 
-    });
-
+  ngOnDestroy(): void {
+    this.unsubscribe();
   }
 
   login() {
@@ -79,5 +90,4 @@ export class UserService {
   logout() {
     signOut(this.auth);
   }
-
 }
