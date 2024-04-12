@@ -107,14 +107,14 @@ export class TodosService implements OnDestroy {
   private _getTodosFromUser(uid: string): Observable<TodoType> {
     // query realtime todo list
     return new Observable<QuerySnapshot<TodoItem>>(
-      (subscriber) => {
+      (subscriber) =>
         onSnapshot(
           query(
             collection(this.db, 'todos'),
             where('uid', '==', uid),
             orderBy('created')
           ).withConverter(todoConverter), subscriber)
-      })
+    )
       .pipe(
         map((arr) => {
           /**
@@ -186,7 +186,6 @@ export class TodosService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('destroying todos...');
     this._subscription.unsubscribe();
   }
 
