@@ -95,7 +95,10 @@ export class TodosService implements OnDestroy {
           return this._getTodosFromUser(_user.data.uid);
         }
         // otherwise return empty
-        return of({ loading: false, data: [] });
+        return of({
+          loading: false,
+          data: []
+        });
       })
     ).subscribe((todos) => {
       this.zone.run(() => {
