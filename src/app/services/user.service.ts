@@ -82,7 +82,6 @@ export class UserService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('destroying user...');
     this._subscription();
   }
 

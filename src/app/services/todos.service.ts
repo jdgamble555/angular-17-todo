@@ -1,5 +1,6 @@
 import {
   Injectable,
+  NgZone,
   OnDestroy,
   inject,
   isDevMode
@@ -75,12 +76,14 @@ export class TodosService implements OnDestroy {
     data: []
   });
 
+  zone = inject(NgZone);
+
   user = inject(UserService).user;
+
+  todos = this._todos.asObservable();
 
   private db = inject(Firestore);
   private _subscription = this._getTodos();
-  
-  todos = this._todos.asObservable();
 
   private _getTodos() {
     // get todos from user observable
@@ -91,16 +94,15 @@ export class TodosService implements OnDestroy {
         if (_user.data) {
           return this._getTodosFromUser(_user.data.uid);
         }
-
         // otherwise return empty
         return of({ loading: false, data: [] });
       })
     ).subscribe((todos) => {
-      console.log(todos);
-      this._todos.next(todos);
+      this.zone.run(() => {
+        this._todos.next(todos);
+      });
     });
   }
-
 
   private _getTodosFromUser(uid: string): Observable<TodoType> {
     // query realtime todo list
@@ -133,7 +135,7 @@ export class TodosService implements OnDestroy {
 
           // print data in dev mode
           if (isDevMode()) {
-            //console.log(data);
+            console.log(data);
           }
           return {
             loading: false,
