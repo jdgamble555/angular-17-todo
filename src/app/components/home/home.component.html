@@ -1,19 +1,18 @@
 <div class="text-center">
     <h1 class="text-3xl font-semibold my-3">Angular Firebase Todo App</h1>
-
-    @if (us.user$().loading) {
-
-    <p>Loading...</p>
-
-    } @else if (us.user$().data) {
-
-    <app-profile />
-
-    } @else {
-
-    <button type="button" class="border p-2 rounded-md text-white bg-red-600" (click)="us.login()">
-        Signin with Google
-    </button>
-
-    }
+    <ng-container *ngIf="us.user | async as user">
+        <ng-container *ngIf="user.loading; else data">
+            <p>Loading...</p>
+        </ng-container>
+        <ng-template #data>
+            <ng-container *ngIf="user.data; else no_user">
+                <app-profile />
+            </ng-container>
+        </ng-template>
+    </ng-container>
+    <ng-template #no_user>
+        <button type="button" class="border p-2 rounded-md text-white bg-red-600" (click)="us.login()">
+            Signin with Google
+        </button>
+    </ng-template>
 </div>

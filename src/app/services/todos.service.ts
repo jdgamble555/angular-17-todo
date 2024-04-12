@@ -1,28 +1,36 @@
 import {
   Injectable,
-  effect,
+  OnDestroy,
   inject,
-  isDevMode,
-  signal
+  isDevMode
 } from '@angular/core';
 import {
-  DocumentData,
-  getFirestore,
   QuerySnapshot,
   addDoc,
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
   where,
-  Timestamp
+  Timestamp,
+  onSnapshot,
+  WithFieldValue,
+  QueryDocumentSnapshot,
+  Firestore
 } from '@angular/fire/firestore';
 
 import { UserService } from './user.service';
+import {
+  BehaviorSubject,
+  Observable,
+  firstValueFrom,
+  map,
+  of,
+  switchMap
+} from 'rxjs';
 
 export interface TodoItem {
   id: string;
@@ -32,95 +40,118 @@ export interface TodoItem {
   uid: string;
 };
 
-export const snapToData = (
-  q: QuerySnapshot<DocumentData, DocumentData>
-) => {
+export type TodoType = {
+  loading: boolean;
+  data: TodoItem[];
+};
 
-  // creates todo data from snapshot
-  if (q.empty) {
-    return [];
-  }
-  return q.docs.map((doc) => {
-    const data = doc.data({
+const todoConverter = {
+  toFirestore(value: WithFieldValue<TodoItem>) {
+    return value;
+  },
+  fromFirestore(
+    snapshot: QueryDocumentSnapshot
+  ) {
+    const data = snapshot.data({
       serverTimestamps: 'estimate'
     });
     const created = data['created'] as Timestamp;
     return {
       ...data,
       created: created.toDate(),
-      id: doc.id
-    }
-  }) as TodoItem[];
-}
+      id: snapshot.id
+    } as TodoItem;
+  }
+};
+
 
 @Injectable({
   providedIn: 'root'
 })
-export class TodosService {
+export class TodosService implements OnDestroy {
 
-  user = inject(UserService).user$;
-  db = getFirestore();
-
-  todos = signal<{
-    data: TodoItem[],
-    loading: boolean
-  }>({
-    data: [],
-    loading: true
+  private _todos = new BehaviorSubject<TodoType>({
+    loading: true,
+    data: []
   });
 
-  constructor() {
+  user = inject(UserService).user;
 
-    effect(() => {
+  private db = inject(Firestore);
+  private _subscription = this._getTodos();
+  
+  todos = this._todos.asObservable();
 
-      const userData = this.user().data;
+  private _getTodos() {
+    // get todos from user observable
+    return this.user.pipe(
+      switchMap((_user) => {
 
-      if (!userData) {
-        this.todos().loading = false;
-        this.todos().data = [];
-        return;
-      }
+        // get todos if user
+        if (_user.data) {
+          return this._getTodosFromUser(_user.data.uid);
+        }
 
-      return onSnapshot(
+        // otherwise return empty
+        return of({ loading: false, data: [] });
+      })
+    ).subscribe((todos) => {
+      console.log(todos);
+      this._todos.next(todos);
+    });
+  }
 
-        // query realtime todo list
-        query(
-          collection(this.db, 'todos'),
-          where('uid', '==', userData.uid),
-          orderBy('created')
-        ), (q) => {
 
-          // toggle loading
-          this.todos().loading = false;
-
-          // get data, map to todo type
-          const data = snapToData(q);
-
+  private _getTodosFromUser(uid: string): Observable<TodoType> {
+    // query realtime todo list
+    return new Observable<QuerySnapshot<TodoItem>>(
+      (subscriber) => {
+        onSnapshot(
+          query(
+            collection(this.db, 'todos'),
+            where('uid', '==', uid),
+            orderBy('created')
+          ).withConverter(todoConverter), subscriber)
+      })
+      .pipe(
+        map((arr) => {
           /**
            * Note: Will get triggered 2x on add 
            * 1 - for optimistic update
            * 2 - update real date from server date
           */
 
-          // print data in dev mode
-          if (isDevMode()) {
-            console.log(data);
+          if (arr.empty) {
+            return {
+              loading: false,
+              data: []
+            };
           }
 
-          // add to store
-          this.todos().data = data;
-        });
+          const data = arr.docs
+            .map((snap) => snap.data());
 
-    });
+          // print data in dev mode
+          if (isDevMode()) {
+            //console.log(data);
+          }
+          return {
+            loading: false,
+            data
+          };
+        })
+      );
   }
 
-  addTodo = (e: SubmitEvent) => {
+  addTodo = async (e: SubmitEvent) => {
 
     e.preventDefault();
 
-    const userData = this.user().data;
+    const userData = await firstValueFrom(
+      this.user
+    );
 
-    if (!userData) {
+    if (!userData.data) {
       throw 'No User!';
     }
 
@@ -137,7 +168,7 @@ export class TodosService {
     target.reset();
 
     addDoc(collection(this.db, 'todos'), {
-      uid: userData.uid,
+      uid: userData.data.uid,
       text: task,
       complete: false,
       created: serverTimestamp()
@@ -152,4 +183,11 @@ export class TodosService {
     deleteDoc(doc(this.db, 'todos', id));
   }
 
+  ngOnDestroy(): void {
+    console.log('destroying todos...');
+    this._subscription.unsubscribe();
+  }
+
 }
+
+

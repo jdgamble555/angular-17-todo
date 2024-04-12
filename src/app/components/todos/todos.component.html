@@ -1,15 +1,19 @@
-<div>
+<ng-container *ngIf="ts.todos | async as todos">
     <div class="grid grid-cols-[auto,auto,auto,auto] gap-3 justify-items-start">
-
-        @for (todo of todos().data; track todo.id) {
-
-        <app-todo-item class="contents" [todo]="todo" />
-
-        } @empty {
-
-        <p><b>Add your first todo item!</b></p>
-
-        }
+        {{ todos.loading }}
+        <ng-container *ngIf="!todos.loading; else loading">
+            <ng-container *ngIf="todos.data.length; else empty">
+                <ng-container *ngFor="let todo of todos.data;">
+                    <app-todo-item class="contents" [todo]="todo" />
+                </ng-container>
+            </ng-container>
+        </ng-container>
     </div>
     <app-todo-form />
-</div>
+</ng-container>
+<ng-template #empty>
+    <p><b>Add your first todo item!</b></p>
+</ng-template>
+<ng-template #loading>
+    <p>Loading...</p>
+</ng-template>

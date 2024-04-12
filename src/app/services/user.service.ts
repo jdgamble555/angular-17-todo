@@ -1,10 +1,8 @@
 import {
   Injectable,
   OnDestroy,
-  OnInit,
   inject,
-  isDevMode,
-  signal
+  isDevMode
 } from '@angular/core';
 import {
   Auth,
@@ -14,13 +12,18 @@ import {
   signInWithPopup,
   signOut
 } from '@angular/fire/auth';
+import { BehaviorSubject } from 'rxjs';
 
-
-export interface userData {
+export interface UserData {
   photoURL: string | null;
   uid: string;
   displayName: string | null;
   email: string | null;
+};
+
+type UserType = {
+  loading: boolean;
+  data: UserData | null;
 };
 
 
@@ -30,43 +33,40 @@ export interface userData {
 export class UserService implements OnDestroy {
 
   private auth = inject(Auth);
-
-  private unsubscribe = () => { };
-
-  user$ = signal<{
-    loading: boolean,
-    data: userData | null
-  }>({
+  private _user = new BehaviorSubject<UserType>({
     loading: true,
     data: null
   });
+  private _subscription = this._getUser();
 
-  constructor() {
+  user = this._user.asObservable();
 
-    // toggle loading
-    this.user$().loading = true;
-
-    // server environment
-    if (!this.auth) {
-      this.user$().loading = false;
-      this.user$().data = null;
-      return;
-    }
-
-    this.unsubscribe = onIdTokenChanged(
+  private _getUser() {
+    return onIdTokenChanged(
       this.auth,
       (_user: User | null) => {
 
-        this.user$().loading = false;
-
         if (!_user) {
-          this.user$().data = null;
+          this._user.next({
+            loading: false,
+            data: null
+          });
           return;
         }
 
         // map data to user data type
-        const { photoURL, uid, displayName, email } = _user;
-        const data = { photoURL, uid, displayName, email };
+        const {
+          photoURL,
+          uid,
+          displayName,
+          email
+        } = _user;
+        const data = {
+          photoURL,
+          uid,
+          displayName,
+          email
+        };
 
         // print data in dev mode
         if (isDevMode()) {
@@ -74,13 +74,16 @@ export class UserService implements OnDestroy {
         }
 
         // set store
-        this.user$().data = data;
-
+        this._user.next({
+          data,
+          loading: false
+        });
       });
   }
 
   ngOnDestroy(): void {
-    this.unsubscribe();
+    console.log('destroying user...');
+    this._subscription();
   }
 
   login() {
