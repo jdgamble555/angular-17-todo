@@ -103,9 +103,7 @@ export class TodosService implements OnDestroy {
         });
       })
     ).subscribe((todos) => {
-      this.zone.run(() => {
-        this._todos.next(todos);
-      });
+      this._todos.next(todos);
     });
   }
 
@@ -118,7 +116,10 @@ export class TodosService implements OnDestroy {
             collection(this.db, 'todos'),
             where('uid', '==', uid),
             orderBy('created')
-          ).withConverter(todoConverter), subscriber)
+          ).withConverter(todoConverter),
+          snapshot => this.zone.run(() => subscriber.next(snapshot)),
+          error => this.zone.run(() => subscriber.error(error))
+        )
     )
       .pipe(
         map((arr) => {
