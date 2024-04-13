@@ -76,13 +76,12 @@ export class TodosService implements OnDestroy {
     data: []
   });
 
-  zone = inject(NgZone);
+  private zone = inject(NgZone);
+  private db = inject(Firestore);
 
   user = inject(UserService).user;
-
   todos = this._todos.asObservable();
 
-  private db = inject(Firestore);
   private _subscription = this._getTodos();
 
   private _getTodos() {
@@ -102,27 +101,25 @@ export class TodosService implements OnDestroy {
           data: []
         });
       })
-    ).subscribe((todos) => {
-      this._todos.next(todos);
-    });
+    ).subscribe(this._todos);
   }
 
-  private _getTodosFromUser(uid: string): Observable<TodoType> {
+  private _getTodosFromUser(uid: string) {
     // query realtime todo list
     return new Observable<QuerySnapshot<TodoItem>>(
-      (subscriber) =>
-        onSnapshot(
-          query(
-            collection(this.db, 'todos'),
-            where('uid', '==', uid),
-            orderBy('created')
-          ).withConverter(todoConverter),
-          snapshot => this.zone.run(() => subscriber.next(snapshot)),
-          error => this.zone.run(() => subscriber.error(error))
-        )
+      (subscriber) => onSnapshot(
+        query(
+          collection(this.db, 'todos'),
+          where('uid', '==', uid),
+          orderBy('created')
+        ).withConverter(todoConverter),
+        snapshot => this.zone.run(() => subscriber.next(snapshot)),
+        error => this.zone.run(() => subscriber.error(error))
+      )
     )
       .pipe(
         map((arr) => {
+
           /**
            * Note: Will get triggered 2x on add 
            * 1 - for optimistic update
