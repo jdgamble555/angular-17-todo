@@ -92,7 +92,9 @@ export class TodosService implements OnDestroy {
 
         // get todos if user
         if (_user.data) {
-          return this._getTodosFromUser(_user.data.uid);
+          return this._getTodosFromUser(
+            _user.data.uid
+          );
         }
         // otherwise return empty
         return of({
@@ -132,7 +134,6 @@ export class TodosService implements OnDestroy {
               data: []
             };
           }
-
           const data = arr.docs
             .map((snap) => snap.data());
 
