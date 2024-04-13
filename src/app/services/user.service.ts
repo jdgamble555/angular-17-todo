@@ -1,7 +1,6 @@
 import {
   Injectable,
   OnDestroy,
-  inject,
   isDevMode
 } from '@angular/core';
 import {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ProfileComponent } from '../profile/profile.component';
 import { UserService } from '@services/user.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -14,5 +14,5 @@ import { AsyncPipe, CommonModule } from '@angular/common';
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
-  us = inject(UserService);
+  constructor(public us: UserService) { }
 }

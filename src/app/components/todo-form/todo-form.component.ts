@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { TodosService } from '@services/todos.service';
 
 @Component({
@@ -8,5 +8,5 @@ import { TodosService } from '@services/todos.service';
   templateUrl: './todo-form.component.html'
 })
 export class TodoFormComponent {
-  ts = inject(TodosService);
+  constructor(public ts: TodosService) { }
 }

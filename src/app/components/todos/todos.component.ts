@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { TodosService } from '@services/todos.service';
 import { TodoItemComponent } from '../todo-item/todo-item.component';
 import { TodoFormComponent } from '../todo-form/todo-form.component';
@@ -18,5 +18,5 @@ import { AsyncPipe, CommonModule } from '@angular/common';
   templateUrl: './todos.component.html'
 })
 export class TodosComponent {
-  ts = inject(TodosService);
+  constructor(public ts: TodosService) { }
 }

@@ -2,7 +2,6 @@ import {
   Injectable,
   NgZone,
   OnDestroy,
-  inject,
   isDevMode
 } from '@angular/core';
 import {

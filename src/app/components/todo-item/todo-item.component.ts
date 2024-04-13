@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TodoItem, TodosService } from '@services/todos.service';
 
 @Component({
@@ -12,6 +12,6 @@ export class TodoItemComponent {
 
   @Input() todo!: TodoItem;
 
-  ts = inject(TodosService);
+  constructor(public ts: TodosService) { }
 
 }

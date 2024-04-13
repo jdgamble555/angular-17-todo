@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import type { AboutDoc } from './about.resolver';
 
@@ -12,16 +12,8 @@ import type { AboutDoc } from './about.resolver';
 })
 export class AboutComponent {
 
-  private route = inject(ActivatedRoute);
+  constructor(public route: ActivatedRoute) { }
 
   about = this.route.snapshot.data['data'] as AboutDoc;
-
-  /*
-  about = toSignal<AboutDoc>(
-    this.route.data.pipe(
-      map((v) => v['data'])
-    )
-  );
-  */
 
 }
