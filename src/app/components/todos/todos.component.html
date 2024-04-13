@@ -2,7 +2,7 @@
     <div class="grid grid-cols-[auto,auto,auto,auto] gap-3 justify-items-start">
         <ng-container *ngIf="!todos.loading; else loading">
             <ng-container *ngIf="todos.data.length; else empty">
-                <ng-container *ngFor="let todo of todos.data;">
+                <ng-container *ngFor="let todo of todos.data; trackBy: identify">
                     <app-todo-item class="contents" [todo]="todo" />
                 </ng-container>
             </ng-container>
