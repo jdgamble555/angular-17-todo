@@ -32,14 +32,18 @@ type UserType = {
 })
 export class UserService implements OnDestroy {
 
-  private auth = inject(Auth);
+  constructor(
+    private auth: Auth
+  ) { }
+
   private _user = new BehaviorSubject<UserType>({
     loading: true,
     data: null
   });
-  private _subscription = this._getUser();
 
   user = this._user.asObservable();
+
+  private _subscription = this._getUser();
 
   private _getUser() {
     return onIdTokenChanged(

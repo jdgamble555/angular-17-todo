@@ -76,17 +76,19 @@ export class TodosService implements OnDestroy {
     data: []
   });
 
-  private zone = inject(NgZone);
-  private db = inject(Firestore);
+  constructor(
+    private zone: NgZone,
+    private db: Firestore,
+    private us: UserService
+  ) {}
 
-  user = inject(UserService).user;
   todos = this._todos.asObservable();
 
   private _subscription = this._getTodos();
 
   private _getTodos() {
     // get todos from user observable
-    return this.user.pipe(
+    return this.us.user.pipe(
       switchMap((_user) => {
 
         // get todos if user
@@ -152,7 +154,7 @@ export class TodosService implements OnDestroy {
     e.preventDefault();
 
     const userData = await firstValueFrom(
-      this.user
+      this.us.user
     );
 
     if (!userData.data) {
