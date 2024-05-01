@@ -23,6 +23,7 @@ export interface UserData {
 type UserType = {
   loading: boolean;
   data: UserData | null;
+  error: Error | null;
 };
 
 
@@ -37,7 +38,8 @@ export class UserService implements OnDestroy {
 
   private _user = new BehaviorSubject<UserType>({
     loading: true,
-    data: null
+    data: null,
+    error: null
   });
 
   user = this._user.asObservable();
@@ -52,7 +54,8 @@ export class UserService implements OnDestroy {
         if (!_user) {
           this._user.next({
             loading: false,
-            data: null
+            data: null,
+            error: null
           });
           return;
         }
@@ -79,8 +82,15 @@ export class UserService implements OnDestroy {
         // set store
         this._user.next({
           data,
-          loading: false
+          loading: false,
+          error: null
         });
+      }, (error) => {
+        this._user.next({
+          data: null,
+          loading: false,
+          error
+        })
       });
   }
 

@@ -31,18 +31,20 @@ import {
   of,
   switchMap
 } from 'rxjs';
+import { FirebaseError } from '@angular/fire/app';
 
 export interface TodoItem {
   id: string;
   text: string;
   complete: boolean;
-  created: Date;
+  createdAt: Date;
   uid: string;
 };
 
 export type TodoType = {
   loading: boolean;
   data: TodoItem[];
+  error: null | FirebaseError
 };
 
 const todoConverter = {
@@ -55,10 +57,10 @@ const todoConverter = {
     const data = snapshot.data({
       serverTimestamps: 'estimate'
     });
-    const created = data['created'] as Timestamp;
+    const createdAt = data['createdAt'] as Timestamp;
     return {
       ...data,
-      created: created.toDate(),
+      createdAt: createdAt.toDate(),
       id: snapshot.id
     } as TodoItem;
   }
@@ -72,14 +74,15 @@ export class TodosService implements OnDestroy {
 
   private _todos = new BehaviorSubject<TodoType>({
     loading: true,
-    data: []
+    data: [],
+    error: null
   });
 
   constructor(
     private zone: NgZone,
     private db: Firestore,
     private us: UserService
-  ) {}
+  ) { }
 
   todos = this._todos.asObservable();
 
@@ -99,7 +102,8 @@ export class TodosService implements OnDestroy {
         // otherwise return empty
         return of({
           loading: false,
-          data: []
+          data: [],
+          error: null
         });
       })
     ).subscribe(this._todos);
@@ -112,7 +116,7 @@ export class TodosService implements OnDestroy {
         query(
           collection(this.db, 'todos'),
           where('uid', '==', uid),
-          orderBy('created')
+          orderBy('createdAt')
         ).withConverter(todoConverter),
         snapshot => this.zone.run(() => subscriber.next(snapshot)),
         error => this.zone.run(() => subscriber.error(error))
@@ -120,7 +124,6 @@ export class TodosService implements OnDestroy {
     )
       .pipe(
         map((arr) => {
-
           /**
            * Note: Will get triggered 2x on add 
            * 1 - for optimistic update
@@ -130,8 +133,9 @@ export class TodosService implements OnDestroy {
           if (arr.empty) {
             return {
               loading: false,
-              data: []
-            };
+              data: [],
+              error: null
+            } as TodoType;
           }
           const data = arr.docs
             .map((snap) => snap.data());
@@ -142,8 +146,18 @@ export class TodosService implements OnDestroy {
           }
           return {
             loading: false,
-            data
-          };
+            data,
+            error: null
+          } as TodoType;
+
+        }, (error: unknown) => {
+
+          return {
+            loading: false,
+            data: null,
+            error
+          } as unknown as TodoType;
+
         })
       );
   }
@@ -176,7 +190,7 @@ export class TodosService implements OnDestroy {
       uid: userData.data.uid,
       text: task,
       complete: false,
-      created: serverTimestamp()
+      createdAt: serverTimestamp()
     });
   }
 
@@ -191,7 +205,4 @@ export class TodosService implements OnDestroy {
   ngOnDestroy(): void {
     this._subscription.unsubscribe();
   }
-
 }
-
-
